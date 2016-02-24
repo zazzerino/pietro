@@ -1,6 +1,7 @@
 (set-env!
- :resource-paths #{"src/"}
- :dependencies '[[org.clojure/clojure "1.7.0"]])
+ :resource-paths #{"src/clj"}
+ :dependencies '[[org.clojure/clojure "1.7.0"]
+                 [org.clojure/tools.nrepl "0.2.11"]])
 
 (task-options!
  pom {:project 'pietro
