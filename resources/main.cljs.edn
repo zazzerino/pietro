@@ -1,3 +1,0 @@
-{:require [pietro.main]
- :init-fns [pietro.main/init]
- :compiler-options {:target :nodejs}}

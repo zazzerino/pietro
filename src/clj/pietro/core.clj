@@ -11,7 +11,6 @@
                  (.setLoopCount Sequencer/LOOP_CONTINUOUSLY)))
 (.setReceiver (.getTransmitter sequencer) receiver)
 
-(def midi-sequence (atom nil))
 (def sounding-notes (atom #{}))
 
 (defn play-note
@@ -26,10 +25,9 @@
   (.noteOff (first (.getChannels synthesizer)) midi-key)
   (swap! sounding-notes disj {:midi-key midi-key}))
 
-(defn silence
-  []
-  (doseq [note sounding-notes]
-    (stop-note note)))
+(defn silence []
+  (doseq [note @sounding-notes]
+    (stop-note (:midi-key note))))
 
 (defn cleanup []
   (.close sequencer)
@@ -37,8 +35,7 @@
 
 (defn set-midi-sequence
   [file-name]
-  (reset! midi-sequence (MidiSystem/getSequence (File. file-name)))
-  (.setSequence sequencer @midi-sequence))
+  (.setSequence sequencer (MidiSystem/getSequence (File. file-name))))
 
 (defn change-instrument
   [instrument]
@@ -184,18 +181,10 @@
     (send-tuning-change channel))
   (.send receiver (single-note-tuning-change-msg freqs) -1))
 
-(set-midi-sequence "/home/kdp/share/midi/wtc/bwv848.mid")
+(set-midi-sequence "/home/kdp/share/midi/wtc/bwv846.mid")
 
 (defn start []
   (.start sequencer))
 
 (defn stop []
   (.stop sequencer))
-
-(defn -main
-  [& args]
-  (retune qcmt-freqs)
-  (dotimes [n 20]
-    (play-note (* 2 (+ n 30)) 127)
-  (Thread/sleep 1000))
-  (cleanup))
