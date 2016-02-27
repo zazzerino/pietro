@@ -73,10 +73,10 @@
   (* 3/2 (/ 1 (Math/pow 81/80 fraction-of-syntonic-comma))))
 
 (def pythagorean-ratios (syntonic-temperament 3/2))
-(def third-comma-meantone-ratios (syntonic-temperament (meantone-fifth 1/3)))
-(def quarter-comma-meantone-ratios (syntonic-temperament (meantone-fifth 1/4)))
-(def fifth-comma-meantone-ratios (syntonic-temperament (meantone-fifth 1/5)))
-(def sixth-comma-meantone-ratios (syntonic-temperament (meantone-fifth 1/6)))
+(def third-comma-ratios (syntonic-temperament (meantone-fifth 1/3)))
+(def quarter-comma-ratios (syntonic-temperament (meantone-fifth 1/4)))
+(def fifth-comma-ratios (syntonic-temperament (meantone-fifth 1/5)))
+(def sixth-comma-ratios (syntonic-temperament (meantone-fifth 1/6)))
 (def equal-ratios (syntonic-temperament (Math/pow 2 7/12)))
 
 (defn freq
@@ -113,14 +113,14 @@
     (midi-key->freq key a4-freq ratios)))
 
 (def standard-freqs (midi-freqs 440 equal-ratios))
-(def eq-freqs (midi-freqs 440 equal-ratios))
-(def py-freqs (midi-freqs 440 pythagorean-ratios))
-(def tcmt-freqs (midi-freqs 440 third-comma-meantone-ratios))
-(def qcmt-freqs (midi-freqs 440 quarter-comma-meantone-ratios))
-(def fcmt-freqs (midi-freqs 440 fifth-comma-meantone-ratios))
-(def scmt-freqs (midi-freqs 440 sixth-comma-meantone-ratios))
+(def equal-freqs (midi-freqs 440 equal-ratios))
+(def pythagorean-freqs (midi-freqs 440 pythagorean-ratios))
+(def third-comma-freqs (midi-freqs 440 third-comma-ratios))
+(def quarter-comma-freqs (midi-freqs 440 quarter-comma-ratios))
+(def fifth-comma-freqs (midi-freqs 440 fifth-comma-ratios))
+(def sixth-comma-freqs (midi-freqs 440 sixth-comma-ratios))
 (def rand-freqs (for [key (range 128)]
-                  (* (nth eq-freqs key) (rand))))
+                  (* (nth equal-freqs key) (rand))))
 
 (defn send-tuning-change
   [channel]
@@ -181,10 +181,14 @@
     (send-tuning-change channel))
   (.send receiver (single-note-tuning-change-msg freqs) -1))
 
-(set-midi-sequence "/home/kdp/share/midi/wtc/bwv846.mid")
+;; (set-midi-sequence "/home/kdp/share/midi/wtc/bwv846.mid")
 
-(defn start []
+(defn play []
   (.start sequencer))
 
-(defn stop []
+(defn pause []
   (.stop sequencer))
+
+(defn stop []
+  (.stop sequencer)
+  (.setTickPosition sequencer 0))
