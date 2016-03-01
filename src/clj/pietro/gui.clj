@@ -31,6 +31,7 @@
                            0))))
 
 
+
 (defn choose-midi-file
   [label]
   (let [file (choose-file)]
@@ -64,7 +65,8 @@
 
 (def midi-progress-timer
   (s/timer (fn [_]
-             (s/config! midi-progress-bar :value (.getTickPosition sequencer)))))
+             (s/config! midi-progress-bar :value (.getTickPosition sequencer)))
+           :delay 100))
 
 (def midi-playback-buttons (s/horizontal-panel
                             :items [play-button pause-button stop-button
