@@ -12,16 +12,18 @@
 (def running-ugens (atom #{}))
 
 (defn play-freq
-  [osc-type freq ampl]
-  (let [osc (case osc-type
-              :sin (SineOscillator.)
-              :saw (SawtoothOscillatorBL.))]
-    (.set (.frequency osc) freq)
-    (.set (.amplitude osc) ampl)
-    (.add synth osc)
-    (.connect (.output osc) 0 (.input line-out) 0)
-    (.connect (.output osc) 0 (.input line-out) 1)
-    (swap! running-ugens conj {:freq freq :osc-type osc-type :osc osc})))
+  ([osc-type freq ampl]
+   (let [osc (case osc-type
+               :sin (SineOscillator.)
+               :saw (SawtoothOscillatorBL.))]
+     (.set (.frequency osc) freq)
+     (.set (.amplitude osc) ampl)
+     (.add synth osc)
+     (.connect (.output osc) 0 (.input line-out) 0)
+     (.connect (.output osc) 0 (.input line-out) 1)
+     (swap! running-ugens conj {:freq freq :osc-type osc-type :osc osc})))
+  ([osc-type freq]
+   (play-freq osc-type freq 0.2)))
 
 (defn stop-freq [osc-type freq]
   (let [osc (:osc (first (filter #(and (= (:freq %) freq)

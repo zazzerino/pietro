@@ -1,9 +1,11 @@
 (ns pietro.gui
   (:import java.io.File
            javax.swing.SwingWorker)
-  (:require [pietro.core :refer :all]
+  (:require [pietro.tuning :refer :all]
+            [pietro.midi :refer :all]
             [seesaw.core :as s]
-            [seesaw.chooser :refer [choose-file file-filter]])
+            [seesaw.chooser :refer [choose-file file-filter]]
+            [seesaw.mig :refer :all])
   (:gen-class))
 
 (s/native!)
@@ -39,7 +41,7 @@
     (s/config! label :text (.getName file))
     (s/config! midi-progress-bar :max (max-ticks sequencer))))
 
-(def midi-file-label (s/label " "))
+(def midi-file-label (s/label "no file selected"))
 (def choose-button (s/button :text "select midi file"
                              :listen [:mouse-clicked
                                       (fn [_]
@@ -68,12 +70,7 @@
              (s/config! midi-progress-bar :value (.getTickPosition sequencer)))
            :delay 100))
 
-(def midi-playback-buttons (s/horizontal-panel
-                            :items [play-button pause-button stop-button
-                                    midi-progress-bar]))
-
-(def midi-file-panel (s/horizontal-panel :items [choose-button midi-file-label]))
-
+(def instrument-label (s/label "instrument:"))
 (def instrument-spinner (s/spinner :model (s/spinner-model 1
                                                            :from 1
                                                            :to 128)))
@@ -82,17 +79,44 @@
                                           (let [instrument (s/selection e)]
                                             (change-instrument instrument))))
 
-(def panel (s/border-panel :vgap 5 :hgap 5
-                           :north midi-file-panel
+(def midi-file-panel (s/horizontal-panel :items [choose-button midi-file-label]))
+(def midi-playback-buttons (s/horizontal-panel
+                            :items [play-button pause-button stop-button]))
+
+(def bpm-label (s/label "bpm:"))
+(def bpm-spinner (s/spinner :model (s/spinner-model 1
+                                                    :from 1
+                                                    :to 500)))
+(s/listen bpm-spinner :selection (fn [e]
+                                   (let [bpm (s/selection e)]
+                                     (.setTempoInBPM sequencer bpm))))
+
+(def spinners (s/grid-panel :columns 2
+                            :items [instrument-label instrument-spinner
+                                    bpm-label bpm-spinner]))
+
+(def panel (s/border-panel :north midi-file-panel
                            :center (s/horizontal-panel
                                     :items [temperaments-listbox
-                                            instrument-spinner])
-                           :south midi-playback-buttons))
+                                            spinners])
+                           :south (s/horizontal-panel
+                                   :items [midi-playback-buttons
+                                           midi-progress-bar])))
+
+;; (def panel (mig-panel :items [[choose-button]
+;;                               [midi-file-label "wrap"]
+;;                               [midi-progress-bar "span 3, wrap"]
+;;                               [play-button]
+;;                               [pause-button]
+;;                               [stop-button]]))
 
 (def frame (s/frame :title "pietro"
                     :size [500 :by 300]
                     :content panel
                     :on-close :dispose))
 
-(defn -main [& args]
+(defn show-gui! []
   (-> frame s/pack! s/show!))
+
+(defn- reload []
+  (s/config! frame :content panel))
