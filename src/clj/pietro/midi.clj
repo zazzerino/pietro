@@ -92,6 +92,10 @@
   [file-name]
   (.setSequence sequencer (MidiSystem/getSequence (File. file-name))))
 
+(defn get-instrument
+  []
+  (.getProgram (first (.getChannels synthesizer))))
+
 (defn change-instrument
   [instrument]
   (dotimes [channel 16]

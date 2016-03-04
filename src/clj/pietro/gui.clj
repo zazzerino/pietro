@@ -32,20 +32,32 @@
                            ticks
                            0))))
 
+(def instrument-label (s/label "instrument:"))
+(def instrument-spinner (s/spinner :model (s/spinner-model 1
+                                                           :from 1
+                                                           :to 128)))
 
+(s/listen instrument-spinner :selection (fn [e]
+                                          (let [instrument (s/selection e)]
+                                            (change-instrument instrument))))
 
 (defn choose-midi-file
-  [label]
+  [label instrument-spinner]
   (let [file (choose-file)]
     (set-midi-sequence (.getAbsolutePath file))
     (s/config! label :text (.getName file))
-    (s/config! midi-progress-bar :max (max-ticks sequencer))))
+    (s/config! midi-progress-bar :max (max-ticks sequencer))
+    (s/config! instrument-spinner :model (s/spinner-model (get-instrument)
+                                                          :from 1
+                                                          :to 128))
+    ))
 
 (def midi-file-label (s/label "no file selected"))
 (def choose-button (s/button :text "select midi file"
                              :listen [:mouse-clicked
                                       (fn [_]
-                                        (choose-midi-file midi-file-label))]))
+                                        (choose-midi-file midi-file-label
+                                                          instrument-spinner))]))
 
 (def temperaments-listbox (s/listbox :model ["equal"
                                              "pythagorean"
@@ -69,15 +81,6 @@
   (s/timer (fn [_]
              (s/config! midi-progress-bar :value (.getTickPosition sequencer)))
            :delay 100))
-
-(def instrument-label (s/label "instrument:"))
-(def instrument-spinner (s/spinner :model (s/spinner-model 1
-                                                           :from 1
-                                                           :to 128)))
-
-(s/listen instrument-spinner :selection (fn [e]
-                                          (let [instrument (s/selection e)]
-                                            (change-instrument instrument))))
 
 (def midi-file-panel (s/horizontal-panel :items [choose-button midi-file-label]))
 (def midi-playback-buttons (s/horizontal-panel
