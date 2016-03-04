@@ -94,7 +94,7 @@
 
 (defn get-instrument
   []
-  (.getProgram (first (.getChannels synthesizer))))
+  (inc (.getProgram (first (.getChannels synthesizer)))))
 
 (defn change-instrument
   [instrument]

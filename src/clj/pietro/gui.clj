@@ -41,8 +41,16 @@
                                           (let [instrument (s/selection e)]
                                             (change-instrument instrument))))
 
+(def bpm-label (s/label "bpm:"))
+(def bpm-spinner (s/spinner :model (s/spinner-model 1
+                                                    :from 1
+                                                    :to 500)))
+(s/listen bpm-spinner :selection (fn [e]
+                                   (let [bpm (s/selection e)]
+                                     (.setTempoInBPM sequencer bpm))))
+
 (defn choose-midi-file
-  [label instrument-spinner]
+  [label instrument-spinner bpm-spinner]
   (let [file (choose-file)]
     (set-midi-sequence (.getAbsolutePath file))
     (s/config! label :text (.getName file))
@@ -50,14 +58,16 @@
     (s/config! instrument-spinner :model (s/spinner-model (get-instrument)
                                                           :from 1
                                                           :to 128))
-    ))
+    (s/config! bpm-spinner :model (s/spinner-model (int (.getTempoInBPM sequencer))
+                                                   :from 1 :to 500))))
 
 (def midi-file-label (s/label "no file selected"))
 (def choose-button (s/button :text "select midi file"
                              :listen [:mouse-clicked
                                       (fn [_]
                                         (choose-midi-file midi-file-label
-                                                          instrument-spinner))]))
+                                                          instrument-spinner
+                                                          bpm-spinner))]))
 
 (def temperaments-listbox (s/listbox :model ["equal"
                                              "pythagorean"
@@ -85,14 +95,6 @@
 (def midi-file-panel (s/horizontal-panel :items [choose-button midi-file-label]))
 (def midi-playback-buttons (s/horizontal-panel
                             :items [play-button pause-button stop-button]))
-
-(def bpm-label (s/label "bpm:"))
-(def bpm-spinner (s/spinner :model (s/spinner-model 1
-                                                    :from 1
-                                                    :to 500)))
-(s/listen bpm-spinner :selection (fn [e]
-                                   (let [bpm (s/selection e)]
-                                     (.setTempoInBPM sequencer bpm))))
 
 (def spinners (s/grid-panel :columns 2
                             :items [instrument-label instrument-spinner
