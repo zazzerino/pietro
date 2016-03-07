@@ -100,13 +100,33 @@
                             :items [instrument-label instrument-spinner
                                     bpm-label bpm-spinner]))
 
-(def panel (s/border-panel :north midi-file-panel
-                           :center (s/horizontal-panel
-                                    :items [temperaments-listbox
-                                            spinners])
-                           :south (s/horizontal-panel
-                                   :items [midi-playback-buttons
-                                           midi-progress-bar])))
+(def menubar
+  (s/menubar :items
+             [(s/menu :text "File"
+                      :items
+                      [(s/menu-item :text "Open"
+                                    :listen
+                                    [:action
+                                     (fn [_]
+                                       (choose-midi-file midi-file-label
+                                                         instrument-spinner
+                                                         bpm-spinner))])])]))
+
+;; (def choose-button (s/button :text "select midi file"
+;;                              :listen [:mouse-clicked
+;;                                       (fn [_]
+;;                                         (choose-midi-file midi-file-label
+;;                                                           instrument-spinner
+;;                                                           bpm-spinner))]))
+
+
+(def panel (s/border-panel 
+            :center (s/horizontal-panel
+                     :items [temperaments-listbox
+                             spinners])
+            :south (s/horizontal-panel
+                    :items [midi-playback-buttons
+                            midi-progress-bar])))
 
 ;; (def panel (mig-panel :items [[choose-button]
 ;;                               [midi-file-label "wrap"]
@@ -118,6 +138,7 @@
 (def frame (s/frame :title "pietro"
                     :size [500 :by 300]
                     :content panel
+                    :menubar menubar
                     :on-close :dispose))
 
 (defn show-gui! []
