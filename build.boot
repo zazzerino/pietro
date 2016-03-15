@@ -9,7 +9,7 @@
  pom {:project 'pietro
       :version "0.1.0"}
  aot {:all true}
- jar {:main 'pietro.gui
+ jar {:main 'pietro.core
       :file "pietro.jar"}
  target {:dir #{"target"}})
 

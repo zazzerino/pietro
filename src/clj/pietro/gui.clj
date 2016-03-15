@@ -5,6 +5,7 @@
             [pietro.midi :refer :all]
             [seesaw.core :as s]
             [seesaw.chooser :refer [choose-file file-filter]]
+            [seesaw.font :refer :all]
             [seesaw.mig :refer :all])
   (:gen-class))
 
@@ -58,16 +59,12 @@
     (s/config! instrument-spinner :model (s/spinner-model (get-instrument)
                                                           :from 1
                                                           :to 128))
-    (s/config! bpm-spinner :model (s/spinner-model (int (.getTempoInBPM sequencer))
-                                                   :from 1 :to 500))))
+    (s/config! bpm-spinner :model (s/spinner-model
+                                   (int (.getTempoInBPM sequencer))
+                                   :from 1 :to 500))))
 
-(def midi-file-label (s/label "no file selected"))
-(def choose-button (s/button :text "select midi file"
-                             :listen [:mouse-clicked
-                                      (fn [_]
-                                        (choose-midi-file midi-file-label
-                                                          instrument-spinner
-                                                          bpm-spinner))]))
+(def midi-file-label (s/label :text "no file selected"
+                              :h-text-position :center))
 
 (def temperaments-listbox (s/listbox :model ["equal"
                                              "pythagorean"
@@ -92,7 +89,7 @@
              (s/config! midi-progress-bar :value (.getTickPosition sequencer)))
            :delay 100))
 
-(def midi-file-panel (s/horizontal-panel :items [choose-button midi-file-label]))
+;; (def midi-file-panel (s/horizontal-panel :items [choose-button midi-file-label]))
 (def midi-playback-buttons (s/horizontal-panel
                             :items [play-button pause-button stop-button]))
 
@@ -112,31 +109,32 @@
                                                          instrument-spinner
                                                          bpm-spinner))])])]))
 
-;; (def choose-button (s/button :text "select midi file"
-;;                              :listen [:mouse-clicked
-;;                                       (fn [_]
-;;                                         (choose-midi-file midi-file-label
-;;                                                           instrument-spinner
-;;                                                           bpm-spinner))]))
+;; (def panel (s/border-panel
+;;             :center (s/horizontal-panel
+;;                      :items [temperaments-listbox
+;;                              spinners
+;;                              midi-file-label])
+;;             :south midi-playback-buttons))
 
+;; (def panel (s/border-panel ;:east temperaments-listbox
+;;                            :south (s/vertical-panel
+;;                                    :items [midi-file-label
+;;                                            midi-progress-bar
+;;                                            midi-playback-buttons])))
 
-(def panel (s/border-panel 
-            :center (s/horizontal-panel
-                     :items [temperaments-listbox
-                             spinners])
-            :south (s/horizontal-panel
-                    :items [midi-playback-buttons
-                            midi-progress-bar])))
-
-;; (def panel (mig-panel :items [[choose-button]
-;;                               [midi-file-label "wrap"]
-;;                               [midi-progress-bar "span 3, wrap"]
-;;                               [play-button]
-;;                               [pause-button]
-;;                               [stop-button]]))
-
+(def panel (mig-panel 
+            :items [[instrument-label]
+                    [instrument-spinner "wrap"]
+                    [bpm-label] [bpm-spinner "wrap"]
+                    [temperaments-listbox "wrap"]
+                    [midi-file-label "wrap"]
+                    [midi-progress-bar "span"]
+                    [play-button "split 3"]
+                    [pause-button]
+                    [stop-button]]))
+            
 (def frame (s/frame :title "pietro"
-                    :size [500 :by 300]
+                    ;; :size [500 :by 300]
                     :content panel
                     :menubar menubar
                     :on-close :dispose))

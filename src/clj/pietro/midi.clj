@@ -116,3 +116,14 @@
 (defn cleanup []
   (.close sequencer)
   (.close synthesizer))
+
+(defn load-soundbank
+  [synth soundbank]
+  (doto synth
+    (.unloadAllInstruments (.getDefaultSoundbank synth))
+    (.loadAllInstruments soundbank)))
+
+(def soundbank (MidiSystem/getSoundbank
+                (File. "/usr/share/soundfonts/FluidR3_GM2-2.sf2")))
+
+(future (load-soundbank synthesizer soundbank))
